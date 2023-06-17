@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Random;
 
 public class Main implements ChangeListener {
@@ -31,8 +32,8 @@ public class Main implements ChangeListener {
         BufferedImage img = null;
         BufferedImage img2 = null;
         try {
-            img = ImageIO.read(new File("images/plus.jpg"));
-            img2 = ImageIO.read(new File("images/minus.png"));
+            img = ImageIO.read(Main.class.getResource("images/plus.jpg"));
+            img2 = ImageIO.read(Main.class.getResource("images/minus.png"));
         }
         catch (IOException e) {
         }
@@ -110,6 +111,11 @@ public class Main implements ChangeListener {
                     } catch (LineUnavailableException ex) {
                     } catch (IOException ex) {
                     }
+                    FloatControl gainControl = (FloatControl) sounds.getControl(FloatControl.Type.MASTER_GAIN);
+                    value = slider.getValue();
+                    range = gainControl.getMaximum() - gainControl.getMinimum();
+                    gainValue = (value / 100f) * range + gainControl.getMinimum();
+                    gainControl.setValue(gainValue);
                     sounds.start();
                     JOptionPane.showMessageDialog(null, "ATTENTION CITIZEN! 市民请注意!\nWe have detected that you are actively engaged in the generating the social credits\n我们检测到您正在积极参与社会信用的产生,\nand we applaud your commitment to the principles set forth by our Party\n并对您对我们党制定的原则的承诺表示赞赏.\nBy actively participating in the generation of social credits\n通过积极参与社会信用的生成,\nyou are demonstrating your dedication to upholding the values of our society\n您展示了对我们社会价值的奉献精神.\n" +
                             "\n" +
@@ -132,10 +138,9 @@ public class Main implements ChangeListener {
         frame.setVisible(true);
     }
 
-    public static void PlayMusic(String url) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        File path = new File(url);
-        if(path.exists()) {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(path);
+    public static void PlayMusic(File file) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        if(file.exists()) {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
             clip = AudioSystem.getClip();
             clip.open(audioInputStream);
             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
@@ -150,10 +155,10 @@ public class Main implements ChangeListener {
         }
     }
 
-    public static void main(String[] args) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
-        String path = "sounds/Red Sun in the Sky.wav";
+    public static void main(String[] args) throws UnsupportedAudioFileException, LineUnavailableException, IOException, URISyntaxException {
+        File file = new File(Main.class.getResource("sounds/Red Sun in the Sky.wav").toURI());
         GUI();
-        PlayMusic(path);
+        PlayMusic(file);
     }
 
     @Override
